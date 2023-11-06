@@ -25,6 +25,20 @@ const run = async () => {
     const jobsDatabase = client.db('jobsDB');
     const jobsCollection = jobsDatabase.collection('job');
 
+    app.get('/jobs', async (request, response) => {
+      const cursor = jobsCollection.find();
+      const result = await cursor.toArray();
+      response.send(result);
+    });
+
+    app.get('/jobsCategory/:category', async (request, response) => {
+      const category = request.params.category;
+      const basedOnCategory = await jobsCollection
+        .find({ jobCategory: category })
+        .toArray();
+      response.send(basedOnCategory);
+    });
+
     app.post('/jobs', async (request, response) => {
       const jobs = request.body;
       const result = await jobsCollection.insertOne(jobs);
