@@ -45,6 +45,11 @@ const run = async () => {
       const updateJob = {
         $set: {
           jobTitle: request.body.title,
+          jobDeadline: request.body.deadline,
+          jobDescription: request.body.description,
+          jobCategory: request.body.category,
+          jobMaxPrice: request.body.lowPrice,
+          jobMinPrice: request.body.highPrice,
         },
       };
       const result = await jobsCollection.updateOne(query, updateJob);
