@@ -49,13 +49,18 @@ const run = async () => {
 
     app.get('/jobPosted', async (request, response) => {
       let query = {};
-
       if (request.query?.email) {
         query = { employerEmail: request.query.email };
       }
-
       const cursor = jobsCollection.find(query);
       const result = await cursor.toArray();
+      response.send(result);
+    });
+
+    app.delete('/jobPosted/id/:id', async (request, response) => {
+      const id = request.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await jobsCollection.deleteOne(query);
       response.send(result);
     });
 
