@@ -1,5 +1,5 @@
 const express = require('express');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
 require('dotenv').config();
 
@@ -37,6 +37,13 @@ const run = async () => {
         .find({ jobCategory: category })
         .toArray();
       response.send(basedOnCategory);
+    });
+
+    app.get('/jobDetails/:id', async (request, response) => {
+      const id = request.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await jobsCollection.findOne(query);
+      response.send(result);
     });
 
     app.post('/jobs', async (request, response) => {
