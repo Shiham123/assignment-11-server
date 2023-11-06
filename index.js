@@ -32,6 +32,25 @@ const run = async () => {
       response.send(result);
     });
 
+    app.get('/jobs/:id', async (request, response) => {
+      const id = request.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await jobsCollection.findOne(query);
+      response.send(result);
+    });
+
+    app.put('/jobs/:id', async (request, response) => {
+      const id = request.params.id;
+      const query = { _id: new ObjectId(id) };
+      const updateJob = {
+        $set: {
+          jobTitle: request.body.title,
+        },
+      };
+      const result = await jobsCollection.updateOne(query, updateJob);
+      response.send(result);
+    });
+
     app.get('/jobsCategory/:category', async (request, response) => {
       const category = request.params.category;
       const basedOnCategory = await jobsCollection
@@ -57,13 +76,6 @@ const run = async () => {
       response.send(result);
     });
 
-    app.delete('/jobPosted/id/:id', async (request, response) => {
-      const id = request.params.id;
-      const query = { _id: new ObjectId(id) };
-      const result = await jobsCollection.deleteOne(query);
-      response.send(result);
-    });
-
     app.post('/jobs', async (request, response) => {
       const jobs = request.body;
       const result = await jobsCollection.insertOne(jobs);
@@ -73,6 +85,13 @@ const run = async () => {
     app.post('/bidJob', async (request, response) => {
       const bidJob = request.body;
       const result = await jobBidCollection.insertOne(bidJob);
+      response.send(result);
+    });
+
+    app.delete('/jobPosted/id/:id', async (request, response) => {
+      const id = request.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await jobsCollection.deleteOne(query);
       response.send(result);
     });
 
