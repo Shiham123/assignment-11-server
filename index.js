@@ -24,6 +24,7 @@ const run = async () => {
     // await client.connect();
     const jobsDatabase = client.db('jobsDB');
     const jobsCollection = jobsDatabase.collection('job');
+    const jobBidCollection = jobsDatabase.collection('bidJob');
 
     app.get('/jobs', async (request, response) => {
       const cursor = jobsCollection.find();
@@ -49,6 +50,12 @@ const run = async () => {
     app.post('/jobs', async (request, response) => {
       const jobs = request.body;
       const result = await jobsCollection.insertOne(jobs);
+      response.send(result);
+    });
+
+    app.post('/bidJob', async (request, response) => {
+      const bidJob = request.body;
+      const result = await jobBidCollection.insertOne(bidJob);
       response.send(result);
     });
 
