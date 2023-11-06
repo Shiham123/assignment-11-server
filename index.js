@@ -47,6 +47,18 @@ const run = async () => {
       response.send(result);
     });
 
+    app.get('/jobPosted', async (request, response) => {
+      let query = {};
+
+      if (request.query?.email) {
+        query = { employerEmail: request.query.email };
+      }
+
+      const cursor = jobsCollection.find(query);
+      const result = await cursor.toArray();
+      response.send(result);
+    });
+
     app.post('/jobs', async (request, response) => {
       const jobs = request.body;
       const result = await jobsCollection.insertOne(jobs);
@@ -75,32 +87,8 @@ app.listen(port, () => {
   console.log(`server is running at http://localhost:${port}`);
 });
 
-// const connectDatabase = async () => {
-//   try {
-//     await mongoose.connect(
-//       ``
-//     );
-//     const jobsDatabase = mongoose.connection.useDb('jobsDB');
-//     const jobsCollection = jobsDatabase.collection('job');
+// http://localhost:5000/jobPosted?employerEmail=personone@mail.com
+// http://localhost:5000/jobPosted?employerEmail=persontwo@mail.com
 
-//     console.log('mongodb is connected');
-//   } catch (error) {
-//     console.log('mongodb connection error', error);
-//     process.exit(1);
-//   }
-// };
-
-// app.get('/', async (request, response) => {
-//   response.send('successfully connected');
-// });
-
-// app.post('/jobs', async (request, response) => {
-//   const jobs = request.body;
-//   const result = await jobsCollection.insertOne(jobs);
-//   response.send(result);
-// });
-
-// app.listen(port, async () => {
-//   console.log(`server is running at http://localhost:${port}`);
-//   await connectDatabase();
-// });
+// http://localhost:5000/jobPosted?employerEmail=personTwo@mail.com
+// http://localhost:5000/jobPosted?employerEmail=personOne@mail.com
