@@ -32,6 +32,12 @@ const run = async () => {
       response.send(result);
     });
 
+    app.get('/bidJob', async (request, response) => {
+      const cursor = jobBidCollection.find();
+      const result = await cursor.toArray();
+      response.send(result);
+    });
+
     app.get('/jobs/:id', async (request, response) => {
       const id = request.params.id;
       const query = { _id: new ObjectId(id) };
