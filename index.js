@@ -83,6 +83,16 @@ const run = async () => {
       response.send(result);
     });
 
+    app.get('/bidJob/bid', async (request, response) => {
+      let query = {};
+      if (request.query?.email) {
+        query = { employerEmail: request.query.email };
+      }
+      const cursor = jobBidCollection.find(query);
+      const result = await cursor.toArray();
+      response.send(result);
+    });
+
     // Put method ----------
     app.put('/jobs/:id', async (request, response) => {
       const id = request.params.id;
