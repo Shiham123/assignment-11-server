@@ -8,13 +8,13 @@ require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 5000;
 
-// app.use(
-//   cors({
-//     origin: ['http://localhost:5173'],
-//     credentials: true,
-//   })
-// );
-app.use(cors());
+app.use(
+  cors({
+    origin: ['http://localhost:5173'],
+    credentials: true,
+  })
+);
+// app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 
@@ -58,20 +58,25 @@ const run = async () => {
     const jobBidCollection = jobsDatabase.collection('bidJob');
 
     // token json web token ----------------
-    // app.post('/jwt', async (request, response) => {
-    //   const user = request.body;
+    app.post('/jwt', async (request, response) => {
+      const user = request.body;
 
-    //   const token = jwt.sign(user, process.env.SECRET_KEY, {
-    //     expiresIn: '100h',
-    //   });
+      const token = jwt.sign(user, process.env.SECRET_KEY, {
+        expiresIn: '100h',
+      });
 
-    //   response
-    //     .cookie('token', token, {
-    //       httpOnly: true,
-    //       secure: false,
-    //     })
-    //     .send({ success: true });
-    // });
+      response
+        .cookie('token', token, {
+          httpOnly: true,
+          secure: false,
+        })
+        .send({ success: true });
+    });
+
+    app.post('/jwtLogout', async (request, response) => {
+      const user = request.body;
+      response.clearCookie('token', { maxAge: 0 }).send({ message: 'logout' });
+    });
 
     // Global get method ----------
     app.get('/jobs', async (request, response) => {
