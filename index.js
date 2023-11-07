@@ -8,12 +8,13 @@ require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 5000;
 
-app.use(
-  cors({
-    origin: ['http://localhost:5173'],
-    credentials: true,
-  })
-);
+// app.use(
+//   cors({
+//     origin: ['http://localhost:5173'],
+//     credentials: true,
+//   })
+// );
+app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 
@@ -57,20 +58,20 @@ const run = async () => {
     const jobBidCollection = jobsDatabase.collection('bidJob');
 
     // token json web token ----------------
-    app.post('/jwt', logger, verifyToken, async (request, response) => {
-      const user = request.body;
+    // app.post('/jwt', async (request, response) => {
+    //   const user = request.body;
 
-      const token = jwt.sign(user, process.env.SECRET_KEY, {
-        expiresIn: '100h',
-      });
+    //   const token = jwt.sign(user, process.env.SECRET_KEY, {
+    //     expiresIn: '100h',
+    //   });
 
-      response
-        .cookie('token', token, {
-          httpOnly: true,
-          secure: false,
-        })
-        .send({ success: true });
-    });
+    //   response
+    //     .cookie('token', token, {
+    //       httpOnly: true,
+    //       secure: false,
+    //     })
+    //     .send({ success: true });
+    // });
 
     // Global get method ----------
     app.get('/jobs', async (request, response) => {
@@ -119,11 +120,7 @@ const run = async () => {
       response.send(result);
     });
 
-    app.get('/bidJob', logger, verifyToken, async (request, response) => {
-      if (request.query.email !== request.customUser.email.toLowerCase()) {
-        return response.status(403).send({ message: 'unauthorized user' });
-      }
-
+    app.get('/bidJob', async (request, response) => {
       let query = {};
       if (request.query?.email) {
         query = { loginUserEmail: request.query.email };
