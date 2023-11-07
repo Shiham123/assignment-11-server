@@ -111,6 +111,20 @@ const run = async () => {
       response.send(result);
     });
 
+    // patch method ----------
+    app.patch('/bidJob/bid/:id', async (request, response) => {
+      const id = request.params.id;
+      const query = { _id: new ObjectId(id) };
+
+      const updateStatue = {
+        $set: {
+          status: request.body.status,
+        },
+      };
+      const result = await jobBidCollection.updateOne(query, updateStatue);
+      response.send(result);
+    });
+
     // post method ----------
     app.post('/jobs', async (request, response) => {
       const jobs = request.body;
