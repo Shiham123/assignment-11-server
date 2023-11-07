@@ -26,39 +26,23 @@ const run = async () => {
     const jobsCollection = jobsDatabase.collection('job');
     const jobBidCollection = jobsDatabase.collection('bidJob');
 
+    // Global get method ----------
     app.get('/jobs', async (request, response) => {
       const cursor = jobsCollection.find();
       const result = await cursor.toArray();
       response.send(result);
     });
 
-    app.get('/bidJob', async (request, response) => {
-      const cursor = jobBidCollection.find();
-      const result = await cursor.toArray();
-      response.send(result);
-    });
+    // app.get('/bidJob', async (request, response) => {
+    //   const cursor = jobBidCollection.find();
+    //   const result = await cursor.toArray();
+    //   response.send(result);
+    // });
 
     app.get('/jobs/:id', async (request, response) => {
       const id = request.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await jobsCollection.findOne(query);
-      response.send(result);
-    });
-
-    app.put('/jobs/:id', async (request, response) => {
-      const id = request.params.id;
-      const query = { _id: new ObjectId(id) };
-      const updateJob = {
-        $set: {
-          jobTitle: request.body.title,
-          jobDeadline: request.body.deadline,
-          jobDescription: request.body.description,
-          jobCategory: request.body.category,
-          jobMaxPrice: request.body.lowPrice,
-          jobMinPrice: request.body.highPrice,
-        },
-      };
-      const result = await jobsCollection.updateOne(query, updateJob);
       response.send(result);
     });
 
@@ -77,6 +61,7 @@ const run = async () => {
       response.send(result);
     });
 
+    // email based get method ----------
     app.get('/jobPosted', async (request, response) => {
       let query = {};
       if (request.query?.email) {
@@ -87,6 +72,36 @@ const run = async () => {
       response.send(result);
     });
 
+    app.get('/bidJob', async (request, response) => {
+      // console.log(request.query.email);
+      let query = {};
+      if (request.query?.email) {
+        query = { loginUserEmail: request.query.email };
+      }
+      const cursor = jobBidCollection.find(query);
+      const result = await cursor.toArray();
+      response.send(result);
+    });
+
+    // Put method ----------
+    app.put('/jobs/:id', async (request, response) => {
+      const id = request.params.id;
+      const query = { _id: new ObjectId(id) };
+      const updateJob = {
+        $set: {
+          jobTitle: request.body.title,
+          jobDeadline: request.body.deadline,
+          jobDescription: request.body.description,
+          jobCategory: request.body.category,
+          jobMaxPrice: request.body.lowPrice,
+          jobMinPrice: request.body.highPrice,
+        },
+      };
+      const result = await jobsCollection.updateOne(query, updateJob);
+      response.send(result);
+    });
+
+    // post method ----------
     app.post('/jobs', async (request, response) => {
       const jobs = request.body;
       const result = await jobsCollection.insertOne(jobs);
@@ -99,6 +114,7 @@ const run = async () => {
       response.send(result);
     });
 
+    // delete method ----------
     app.delete('/jobPosted/id/:id', async (request, response) => {
       const id = request.params.id;
       const query = { _id: new ObjectId(id) };
