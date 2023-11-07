@@ -17,6 +17,28 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
+// custom middleware
+const logger = async (request, response, next) => {
+  console.log('called', request.hostname, 'url', request.originalUrl);
+  next();
+};
+
+const verifyToken = async (request, response, next) => {
+  const token = request.cookies?.token;
+
+  if (!token) {
+    return response.status(401).send({ message: 'token not found' });
+  }
+
+  jwt.verify(token, process.env.SECRET_KEY, (error, decoded) => {
+    if (error) {
+      return response.status(402).send({ message: 'not authorized' });
+    }
+    request.customUser = decoded;
+    next();
+  });
+};
+
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster-assignment-11.m6efgmp.mongodb.net/?retryWrites=true&w=majority`;
 
 const client = new MongoClient(uri, {
@@ -35,7 +57,7 @@ const run = async () => {
     const jobBidCollection = jobsDatabase.collection('bidJob');
 
     // token json web token ----------------
-    app.post('/jwt', async (request, response) => {
+    app.post('/jwt', logger, verifyToken, async (request, response) => {
       const user = request.body;
 
       const token = jwt.sign(user, process.env.SECRET_KEY, {
@@ -73,7 +95,6 @@ const run = async () => {
 
     app.get('/jobsCategory/:category', async (request, response) => {
       const category = request.params.category;
-      // console.log(request.cookies.token);
       const basedOnCategory = await jobsCollection
         .find({ jobCategory: category })
         .toArray();
@@ -98,8 +119,11 @@ const run = async () => {
       response.send(result);
     });
 
-    app.get('/bidJob', async (request, response) => {
-      // console.log(request.query.email);
+    app.get('/bidJob', logger, verifyToken, async (request, response) => {
+      if (request.query.email !== request.customUser.email.toLowerCase()) {
+        return response.status(403).send({ message: 'unauthorized user' });
+      }
+
       let query = {};
       if (request.query?.email) {
         query = { loginUserEmail: request.query.email };
