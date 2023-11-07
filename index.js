@@ -1,4 +1,6 @@
 const express = require('express');
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const cors = require('cors');
 require('dotenv').config();
@@ -6,8 +8,14 @@ require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 5000;
 
-app.use(cors());
+app.use(
+  cors({
+    origin: ['http://localhost:5173'],
+    credentials: true,
+  })
+);
 app.use(express.json());
+app.use(cookieParser());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster-assignment-11.m6efgmp.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -26,9 +34,26 @@ const run = async () => {
     const jobsCollection = jobsDatabase.collection('job');
     const jobBidCollection = jobsDatabase.collection('bidJob');
 
+    // token json web token ----------------
+    app.post('/jwt', async (request, response) => {
+      const user = request.body;
+
+      const token = jwt.sign(user, process.env.SECRET_KEY, {
+        expiresIn: '100h',
+      });
+
+      response
+        .cookie('token', token, {
+          httpOnly: true,
+          secure: false,
+        })
+        .send({ success: true });
+    });
+
     // Global get method ----------
     app.get('/jobs', async (request, response) => {
       const cursor = jobsCollection.find();
+      console.log(request.cookies);
       const result = await cursor.toArray();
       response.send(result);
     });
@@ -48,6 +73,7 @@ const run = async () => {
 
     app.get('/jobsCategory/:category', async (request, response) => {
       const category = request.params.category;
+      // console.log(request.cookies.token);
       const basedOnCategory = await jobsCollection
         .find({ jobCategory: category })
         .toArray();
