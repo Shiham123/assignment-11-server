@@ -22,6 +22,18 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
+// const uri = 'mongodb://localhost:27017';
+
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster-assignment-11.m6efgmp.mongodb.net/?retryWrites=true&w=majority`;
+
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  },
+});
+
 // custom middleware
 // const logger = async (request, response, next) => {
 //   console.log('called', request.hostname, 'url', request.originalUrl);
@@ -39,22 +51,11 @@ app.use(cookieParser());
 //     if (error) {
 //       return response.status(402).send({ message: 'not authorized' });
 //     }
+
 //     request.customUser = decoded;
 //     next();
 //   });
 // };
-
-// const uri = 'mongodb://localhost:27017';
-
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster-assignment-11.m6efgmp.mongodb.net/?retryWrites=true&w=majority`;
-
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  },
-});
 
 const run = async () => {
   try {
@@ -92,12 +93,6 @@ const run = async () => {
       const result = await cursor.toArray();
       response.send(result);
     });
-
-    // app.get('/bidJob', async (request, response) => {
-    //   const cursor = jobBidCollection.find();
-    //   const result = await cursor.toArray();
-    //   response.send(result);
-    // });
 
     app.get('/jobs/:id', async (request, response) => {
       const id = request.params.id;
@@ -137,7 +132,7 @@ const run = async () => {
       if (request.query?.email) {
         query = { loginUserEmail: request.query.email };
       }
-      const sortBaseOnPrice = { bidPrice: 1 };
+      const sortBaseOnPrice = { status: 1 };
       const cursor = jobBidCollection.find(query).sort(sortBaseOnPrice);
       const result = await cursor.toArray();
       response.send(result);
@@ -221,9 +216,3 @@ app.get('/', (request, response) => {
 app.listen(port, () => {
   console.log(`server is running at http://localhost:${port}`);
 });
-
-// http://localhost:5000/jobPosted?employerEmail=personone@mail.com
-// http://localhost:5000/jobPosted?employerEmail=persontwo@mail.com
-
-// http://localhost:5000/jobPosted?employerEmail=personTwo@mail.com
-// http://localhost:5000/jobPosted?employerEmail=personOne@mail.com
