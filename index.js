@@ -11,8 +11,9 @@ const port = process.env.PORT || 5000;
 app.use(
   cors({
     origin: [
-      'https://assignment-11-26ced.web.app',
-      'https://assignment-11-26ced.firebaseapp.com',
+      'http://localhost:5173',
+      // 'https://assignment-11-26ced.web.app',
+      // 'https://assignment-11-26ced.firebaseapp.com',
     ],
     credentials: true,
   })
@@ -27,23 +28,25 @@ const logger = async (request, response, next) => {
   next();
 };
 
-const verifyToken = async (request, response, next) => {
-  const token = request.cookies?.token;
+// const verifyToken = async (request, response, next) => {
+//   const token = request.cookies?.token;
 
-  if (!token) {
-    return response.status(401).send({ message: 'token not found' });
-  }
+//   if (!token) {
+//     return response.status(401).send({ message: 'token not found' });
+//   }
 
-  jwt.verify(token, process.env.SECRET_KEY, (error, decoded) => {
-    if (error) {
-      return response.status(402).send({ message: 'not authorized' });
-    }
-    request.customUser = decoded;
-    next();
-  });
-};
+//   jwt.verify(token, process.env.SECRET_KEY, (error, decoded) => {
+//     if (error) {
+//       return response.status(402).send({ message: 'not authorized' });
+//     }
+//     request.customUser = decoded;
+//     next();
+//   });
+// };
 
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster-assignment-11.m6efgmp.mongodb.net/?retryWrites=true&w=majority`;
+const uri = 'mongodb://localhost:27017';
+
+// const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster-assignment-11.m6efgmp.mongodb.net/?retryWrites=true&w=majority`;
 
 const client = new MongoClient(uri, {
   serverApi: {
