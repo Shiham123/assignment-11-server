@@ -11,9 +11,9 @@ const port = process.env.PORT || 5000;
 app.use(
   cors({
     origin: [
-      'http://localhost:5173',
-      // 'https://assignment-11-26ced.web.app',
-      // 'https://assignment-11-26ced.firebaseapp.com',
+      // 'http://localhost:5173',
+      'https://assignment-11-26ced.web.app',
+      'https://assignment-11-26ced.firebaseapp.com',
     ],
     credentials: true,
   })
@@ -23,10 +23,10 @@ app.use(express.json());
 app.use(cookieParser());
 
 // custom middleware
-const logger = async (request, response, next) => {
-  console.log('called', request.hostname, 'url', request.originalUrl);
-  next();
-};
+// const logger = async (request, response, next) => {
+//   console.log('called', request.hostname, 'url', request.originalUrl);
+//   next();
+// };
 
 // const verifyToken = async (request, response, next) => {
 //   const token = request.cookies?.token;
@@ -44,9 +44,9 @@ const logger = async (request, response, next) => {
 //   });
 // };
 
-const uri = 'mongodb://localhost:27017';
+// const uri = 'mongodb://localhost:27017';
 
-// const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster-assignment-11.m6efgmp.mongodb.net/?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster-assignment-11.m6efgmp.mongodb.net/?retryWrites=true&w=majority`;
 
 const client = new MongoClient(uri, {
   serverApi: {
@@ -81,6 +81,7 @@ const run = async () => {
 
     app.post('/jwtLogout', async (request, response) => {
       const user = request.body;
+      console.log(user);
       response.clearCookie('token', { maxAge: 0 }).send({ message: 'logout' });
     });
 
@@ -136,7 +137,8 @@ const run = async () => {
       if (request.query?.email) {
         query = { loginUserEmail: request.query.email };
       }
-      const cursor = jobBidCollection.find(query);
+      const sortBaseOnPrice = { bidPrice: 1 };
+      const cursor = jobBidCollection.find(query).sort(sortBaseOnPrice);
       const result = await cursor.toArray();
       response.send(result);
     });
