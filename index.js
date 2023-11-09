@@ -69,7 +69,7 @@ const run = async () => {
       const user = request.body;
 
       const token = jwt.sign(user, process.env.SECRET_KEY, {
-        expiresIn: '100h',
+        expiresIn: '365d',
       });
 
       response
