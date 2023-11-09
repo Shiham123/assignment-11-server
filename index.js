@@ -75,7 +75,8 @@ const run = async () => {
       response
         .cookie('token', token, {
           httpOnly: true,
-          secure: false,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
         })
         .send({ success: true });
     });
@@ -83,7 +84,13 @@ const run = async () => {
     app.post('/jwtLogout', async (request, response) => {
       const user = request.body;
       console.log(user);
-      response.clearCookie('token', { maxAge: 0 }).send({ message: 'logout' });
+      response
+        .clearCookie('token', {
+          maxAge: 0,
+          secure: process.env.NODE_ENV === 'production' ? true : false,
+          sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+        })
+        .send({ message: 'logout' });
     });
 
     // Global get method ----------
